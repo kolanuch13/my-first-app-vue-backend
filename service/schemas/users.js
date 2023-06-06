@@ -27,6 +27,10 @@ user.methods.setPassword = function (password) {
   this.password = bCrypt.hashSync(password, bCrypt.genSaltSync(6));
 }
 
+user.methods.setToken = function (token) {
+  this.token = token;
+};
+
 user.methods.validPassword = function (password) {
   return bCrypt.compareSync(password, this.password);
 }

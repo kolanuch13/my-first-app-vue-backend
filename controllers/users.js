@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const register = async (req, res, next) => {
   const { password, email, name } = req.body;
   const user = await User.findOne({ email });
+
   if (user) {
     return res.status(409).json({ message: "Email in use" });
   }
@@ -13,7 +14,14 @@ const register = async (req, res, next) => {
   try {
     const newUser = new User({ email, name });
     console.log(newUser);
+    const payload = {
+      id: newUser.id,
+      email: newUser.email,
+    };
+    const token = jwt.sign(payload, "secret", { expiresIn: "24h" }, secret);
+
     newUser.setPassword(password);
+    newUser.setToken(token);
     await newUser.save();
     res.status(200).json({ user: newUser });
   } catch (error) {
@@ -33,9 +41,12 @@ const login = async (req, res, next) => {
     id: user.id,
     email: user.email,
   };
-
-  const token = jwt.sign(payload, "secret", { expiresIn: "24h" }, secret);
-  await service.login(user.id, token);
+  if (!user.token) {
+    const token = jwt.sign(payload, "secret", { expiresIn: "24h" }, secret);
+    await service.login(user.id, token);
+  } else {
+    await service.login(user.id, user.token);
+  }
 
   res.status(200).json({
     user: user,

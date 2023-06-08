@@ -6,14 +6,11 @@ const orders = new Schema({
     type: String,
     required: true,
   },
-  apartmentId: {
-    type: String,
-    required: true,
-  },
+  apartmentId: [{ type: Schema.Types.ObjectId, ref: "apartments" }],
   owner: {
     type: String,
-    require: true
-  }
+    require: true,
+  },
 });
 
 const Orders = mongoose.model("orders", orders);

@@ -8,6 +8,7 @@ const auth = async (req, res, next) => {
     if (!token) {
       res.status(401).json({ message: "Unauthorised." });
     }
+
     const decoded = jwt.verify(token, secret);
 
     const user = await User.findOne({ _id: decoded.id });
@@ -19,8 +20,8 @@ const auth = async (req, res, next) => {
     req.user = user;
     req.userID = user._id;
     next();
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    console.log(error);
     res.status(401).send({ error: "Authentication problem!!" });
   }
 };

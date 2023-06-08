@@ -3,8 +3,8 @@ const service = require("../service/orders");
 const get = async (req, res, next) => {
   const user = req.user;
   try {
-    const result = await service.getOrders(user.id);
-    res.send({ result });
+    const orders = await service.getOrders(user.id);
+    res.send({ orders });
   } catch (error) {
     next(error);
   }
@@ -15,6 +15,7 @@ const create = async (req, res, next) => {
   try {
     const order = req.body;
     order.owner = user.id;
+    console.log(order);
     const result = await service.createOrder(order);
     res.status(201).json(result);
   } catch (error) {

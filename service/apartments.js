@@ -1,6 +1,7 @@
 const Apartments = require("./schemas/apartments");
 
 const getAllApartments = async (page, limit) => {
+  
   return Apartments.find()
     .skip(page * limit)
     .limit(limit)

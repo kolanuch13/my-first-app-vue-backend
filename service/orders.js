@@ -1,7 +1,9 @@
 const Orders = require("./schemas/orders");
 
 const getOrders = async (userId) => {
-  return Orders.find({owner: userId})
+  return Orders.find({ owner: userId })
+    .populate("apartmentId", "title price location photo")
+    .exec();
 };
 
 const createOrder = async (order) => {

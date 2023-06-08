@@ -1,4 +1,5 @@
 const service = require("../service/apartments");
+const Apartments = require("../service/schemas/apartments");
 
 const get = async (req, res, next) => {
   try {
@@ -7,9 +8,13 @@ const get = async (req, res, next) => {
 
     const limit = parseInt(size);
     const index = parseInt(page);
+    const allItems = await Apartments.count().then((count) => {
+      const result = parseInt(Math.ceil(count / size) - 1);
+      return result;
+    });
 
     const result = await service.getAllApartments(index, limit);
-    res.send({ page, size, result });
+    res.send({ page, size, allItems, result });
   } catch (error) {
     next(error);
   }

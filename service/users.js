@@ -5,11 +5,18 @@ const registration = async ({ name, password, email, token }) => {
 };
 
 const login = (id, token) => {
-  return User.findByIdAndUpdate({ _id: id }, { token: token });
+  return User.findOneAndUpdate(
+    { _id: id },
+    { token: token },
+    {
+      new: true,
+      upsert: true,
+    }
+  );
 };
 
 const logout = (id) => {
-  return User.findByIdAndUpdate({ _id: id }, { token: "" });
+  return User.findOneAndUpdate({ _id: id }, { token: "" });
 };
 
 const current = (id) => {

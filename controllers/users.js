@@ -5,12 +5,20 @@ const jwt = require("jsonwebtoken");
 
 const register = async (req, res, next) => {
   const { password, email, name } = req.body;
+
+  if (!password || !email || !name) {
+    res.status(409).json({
+      message: `Missing credentials!`,
+    });
+    return;
+  }
+
   const user = await User.findOne({ email });
 
   if (user) {
     return res.status(409).json({ message: "Email in use" });
   }
-  
+
   try {
     const newUser = new User({ email, name });
     console.log(newUser);
@@ -18,12 +26,18 @@ const register = async (req, res, next) => {
       id: newUser.id,
       email: newUser.email,
     };
-    const token = jwt.sign(payload, "secret", { expiresIn: "24h" }, secret);
+    const token = jwt.sign(payload, secret, { expiresIn: "24h" });
 
     newUser.setPassword(password);
     newUser.setToken(token);
     await newUser.save();
-    res.status(200).json({ user: newUser });
+    res.status(200).json({
+      user: {
+        name: newUser.name,
+        email: newUser.email,
+      },
+      token: token,
+    });
   } catch (error) {
     next(error);
   }
@@ -31,6 +45,14 @@ const register = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   const { password, email } = req.body;
+
+  if (!password || !email) {
+    res.status(409).json({
+      message: `Missing credentials!`,
+    });
+    return;
+  }
+
   const user = await User.findOne({ email });
 
   if (!user || !user.validPassword(password)) {
@@ -42,14 +64,19 @@ const login = async (req, res, next) => {
     email: user.email,
   };
   if (!user.token) {
-    const token = jwt.sign(payload, "secret", { expiresIn: "24h" }, secret);
+    const token = jwt.sign(payload, secret, { expiresIn: "24h" });
+    user.setToken(token)
     await service.login(user.id, token);
   } else {
     await service.login(user.id, user.token);
   }
 
   res.status(200).json({
-    user: user,
+    user: {
+      name: user.name,
+      email: user.email,
+    },
+    token: user.token,
   });
 };
 
